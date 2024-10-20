@@ -2,7 +2,7 @@ import process from "node:process";
 // prettier ignore
 import express, { Express, Request, Response, Application, NextFunction } from "express";
 import { DBInstance } from "./src/services/db.ts";
-import * as routes from "./src/router.ts";
+import * as routes from "./src/procs.ts";
 DBInstance.InitalizeDbPool();
 
 // import WebSocket from "ws";

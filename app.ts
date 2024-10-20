@@ -1,30 +1,31 @@
 import express, { Request, Response } from 'express';
-
+import procs from './src/procs.ts';
 const app = express()
 const port = 3000
 
 app.use(express.json());
 
-const fn = function(req, res) {
+const fnRouter = function(req: Request, res: Response) {
     res.send(req.method + req.route.path.replaceAll('/', '_').replaceAll(':', '$')) ;
 }
 
-app.get('/User', fn);
-app.get('/Pet', fn);
-app.get('/dashboard', fn);
-app.get('/Account', fn);
-app.get('/Payment', fn);
-app.get('/User/:userId', fn);
-app.get('/User/:userId/Pet/:petId', fn);
-app.get('/dashboard2', fn);
-app.get('/dashboard3', fn);
-app.get('/dashboard4', fn);
-app.get('/dashboard5', fn);
-
-
-app.get('/', (req, res) => {
-    res.send('🦄🌈✨👋🌎🌍🌏✨🌈🦄')
-})
+for (const proc of procs) {
+    const index = proc.indexOf('_');
+    const method = proc.slice(0, index);
+    const path = proc.slice(index).replaceAll('$', ':').replaceAll('_', '/');
+    console.log(method, path);
+    if (method === 'GET') {
+        app.get(path, fnRouter);
+    } else if (method === 'POST') {
+        app.post(path, fnRouter);
+    } else if (method === 'DELETE') {
+        app.delete(path, fnRouter);
+    } else if (method === 'PUT') {
+        app.put(path, fnRouter);
+    } else if (method === 'PATCH') {
+        app.patch(path, fnRouter);
+    } else throw new Error(`unknown method: ${method}`);
+}
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
