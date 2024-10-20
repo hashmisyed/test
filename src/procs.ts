@@ -1,12 +1,12 @@
 const procs = [
-  'GET_User_$userId_Pet_$petId',
-  'GET_',
-  'GET_Users',
-  'GET_Users_$userId',
-  'POST_Users',
-  'POST_Users_$userId',
-  'DELETE_Users_$userId',
-  'PUT_Users_$userId',
-  'PATCH_Users_$userId'
+  'GET__User_$userId_Pet_$petId',
+  'GET__',
+  'GET__Users',
+  'GET__Users_$userId',
+  'POST__Users',
+  'POST__Users_$userId',
+  'DELETE__Users_$userId',
+  'PUT__Users_$userId',
+  'PATCH__Users_$userId'
 ];
 export default procs;

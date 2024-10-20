@@ -4,15 +4,17 @@ const app = express()
 const port = 3000
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 const fnRouter = function(req: Request, res: Response) {
-    res.send(req.method + req.route.path.replaceAll('/', '_').replaceAll(':', '$')) ;
+    const proc = req.method + req.route.path.replaceAll('/', '_').replaceAll(':', '$');
+    res.send(proc);
 }
 
 for (const proc of procs) {
-    const index = proc.indexOf('_');
-    const method = proc.slice(0, index);
-    const path = proc.slice(index).replaceAll('$', ':').replaceAll('_', '/');
+    const [method, ...p] = proc.split('_');
+    const path = p.join('/').replaceAll('$', ':');
     console.log(method, path);
     if (method === 'GET') {
         app.get(path, fnRouter);
