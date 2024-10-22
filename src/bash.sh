@@ -27,3 +27,13 @@ curl -fsSL https://deb.nodesource.com/setup_23.x -o nodesource_setup.sh
 sudo -E bash nodesource_setup.sh
 sudo apt-get install -y nodejs
 node -v
+
+sudo pm2 completion install
+sudo npm install pm2@latest -g && pm2 update
+pm2 start hello.js
+pm2 startup systemd
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u sammy --hp /home/sammy
+sudo systemctl start pm2-sammy
+systemctl status pm2-sammy
+
+npm install pm2 -g
