@@ -13,7 +13,10 @@
   "dependencies": {
     "bcrypt": "5.1.1",
     "express": "4.21.0",
-    "mysql2": "3.11.3"
+    "mysql2": "3.11.3",
+    "node-uuid": "1.4.8",
+    "uuid": "11.0.2",
+    "uuid-time": "1.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "5.0.2",
