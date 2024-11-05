@@ -1,8 +1,8 @@
 export class UUID {
-  static startTime = BigInt(new Date().getTime() * 10000) + 0x01B21DD213814000n;//(100 nano second)s since epoch 1582-10-15
+  static startTime = BigInt(new Date().getTime() * 1000000) + 12219292800000000000n;//nano seconds since greg 1582-10-15 to epoch
   static lastTS = 0n;
   static sequence = 0;
-  static readonly mac: number = Math.random() * 0x10000000000000;// TODO: set multicast bit '1'
+  static readonly mac: number = Math.floor(Math.random() * 0x1000000000000);// TODO: set multicast bit '1'
 	static hrStart = process.hrtime.bigint();
 
   static genV1(): string {
@@ -13,32 +13,30 @@ export class UUID {
     } else if (now === UUID.lastTS) {
 			UUID.sequence++;
     } else { // now < UUID.lastTS. clock moved backwards. Should never happen with process.hr(). TODO: Send notification to monitoring server
-			UUID.startTime = BigInt(new Date().getTime() * 10000) + 0x01B21DD213814000n;
+			UUID.startTime = BigInt(new Date().getTime() * 1000000) + 12219292800000000000n;
 			UUID.hrStart = process.hrtime.bigint();
 			UUID.lastTS = now;
 			UUID.sequence++;
     }
 
-    const timeLow = (now & 0xFFFFFFFFn).toString(16).padStart(8, '0');
-    const timeMid = ((now >> 32n) & 0xFFFFn).toString(16).padStart(4, '0');
-    const timeHigh = (((now >> 48n) & 0x0FFFn) | 0x1000n).toString(16).padStart(4, '0');
+		const ns = Number(now % 100n) + UUID.sequence;
+		const ts: bigint = now / 100n;
+    const timeLow = (ts & 0xFFFFFFFFn).toString(16).padStart(8, '0');
+    const timeMid = ((ts >> 32n) & 0xFFFFn).toString(16).padStart(4, '0');
+    const timeHigh = (((ts >> 48n) & 0x0FFFn) | 0x1000n).toString(16).padStart(4, '0');
 
-    const clockSeq = Math.floor(UUID.sequence * 0x3FFF).toString(16).padStart(4, '0');
-
-    const mac = UUID.mac.toString(16).padStart(12, '0');
-    const uuid = `${timeLow}-${timeMid}-${timeHigh}-${clockSeq}-${mac}`;
+    const clockSeq = (ns).toString(16).padStart(4, '0');
+    const macx = UUID.mac.toString(16).padStart(12, '0');
+    const uuid = `${timeLow}-${timeMid}-${timeHigh}-${clockSeq}-${macx}`;
 
     return uuid;
 	}
-  static timeV1(uuid: string): bigint {
-    const timeLow = uuid.slice(1, 9);
-    const timeMid = uuid.slice(10, 14);
-    const timeHigh = uuid.slice(16, 19);
-    const clockSeq = uuid.slice(20, 24);
-
-    const time = BigInt(`0x${timeLow}${timeMid}${timeHigh}${clockSeq}`) - 0x01B21DD213814000n;
-// dfb024e8-9af4-11ef-0000-b54afe78410fa
+  static timeV1(v1: string): bigint {
+    const timeLow = v1.slice(0, 8);
+    const timeMid = v1.slice(9, 13);
+    const timeHigh = v1.slice(15, 18);
+    const clockSeq = v1.slice(19, 23);
+		const time = (BigInt(`0x${timeHigh}${timeMid}${timeLow}`) *  100n) + BigInt(`0x${clockSeq}`) - 12219292800000000000n
     return time;
 	}
 }
-
