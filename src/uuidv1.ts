@@ -25,9 +25,20 @@ export class UUID {
 
     const clockSeq = Math.floor(UUID.sequence * 0x3FFF).toString(16).padStart(4, '0');
 
-    const uuid = `${timeLow}-${timeMid}-${timeHigh}-${clockSeq}-${UUID.mac.toString(16).padStart(12, '0')}`;
+    const mac = UUID.mac.toString(16).padStart(12, '0');
+    const uuid = `${timeLow}-${timeMid}-${timeHigh}-${clockSeq}-${mac}`;
 
     return uuid;
+	}
+  static timeV1(uuid: string): bigint {
+    const timeLow = uuid.slice(1, 9);
+    const timeMid = uuid.slice(10, 14);
+    const timeHigh = uuid.slice(16, 19);
+    const clockSeq = uuid.slice(20, 24);
+
+    const time = BigInt(`0x${timeLow}${timeMid}${timeHigh}${clockSeq}`) - 0x01B21DD213814000n;
+// dfb024e8-9af4-11ef-0000-b54afe78410fa
+    return time;
 	}
 }
 
