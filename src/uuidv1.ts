@@ -15,38 +15,26 @@ function getIPv4Address() {
 }
 
 export class UUID {
-  static startTime = BigInt(new Date().getTime() * 1000000) + BigInt('12219292800000000000');//nano seconds since greg 1582-10-15 to epoch
+  static startTime = BigInt(new Date().getTime() * 1000000);
   static lastTS = BigInt('0');
-  static sequence = 0;
 	static hrStart = process.hrtime.bigint();
-  static IPv4 = getIPv4Address();
-  static port = Number(process.env.PORT) || 3000;
-  static genV1(): string {
+  static serverIP = getIPv4Address().toString(16).padStart(4, '0');
+  static port = (Number(process.env.PORT) || 3000).toString(16).padStart(2, '0');
+  static genTXID(): string {
 		const now = UUID.startTime + process.hrtime.bigint() - UUID.hrStart;
     if (now > UUID.lastTS) {
       UUID.lastTS = now;
-			UUID.sequence = 0;
-    } else if (now === UUID.lastTS) {
-			UUID.sequence++;
-    } else { // now < UUID.lastTS. clock moved backwards. Should never happen with process.hr(). TODO: Send notification to monitoring server
-			UUID.startTime = BigInt(new Date().getTime() * 1000000) + BigInt('12219292800000000000');
-			UUID.hrStart = process.hrtime.bigint();
-			UUID.lastTS = now;
-			UUID.sequence++;
-      console.log('clock moved backwards');
+    } else {
+      UUID.lastTS++;
     }
-		const ns = (Number(now % BigInt('100')) * 1000000000 + UUID.sequence * 100) / 100;
-		const ts: bigint = now / BigInt('100');
-    const timeLow = (ts & BigInt('0xFFFFFFFF')).toString(16).padStart(8, '0');
-    const timeMid = ((ts >> BigInt('32')) & BigInt('0xFFFF')).toString(16).padStart(4, '0');
-    const timeHigh = (((ts >> BigInt('48')) & BigInt('0x0FFF')) | BigInt('0x1000')).toString(16).padStart(4, '0');
 
-    const clockSeq = (ns).toString(16).padStart(4, '0');
-    const IPv4 = UUID.IPv4.toString(16).padStart(4, '0');
-    const port = UUID.port.toString(16).padStart(2, '0');
-    const uuid = `${timeLow}-${timeMid}-${timeHigh}-${clockSeq}-${IPv4}${port}`;
+    const timeLow = (UUID.lastTS & BigInt('0xFFFFFFFF')).toString(16).padStart(8, '0');
+    const timeMid = ((UUID.lastTS >> BigInt('32')) & BigInt('0xFFFF')).toString(16).padStart(4, '0');
+    const timeHigh = (((UUID.lastTS >> BigInt('48')) & BigInt('0x0FFF')) | BigInt('0x1000')).toString(16).padStart(4, '0');
 
-    return uuid;
+    const txid = `${timeLow}-${timeMid}-${timeHigh}-${UUID.serverIP}-${UUID.port}`;
+
+    return txid;
 	}
   static timeV1(v1: string): string {
     const timeLow = v1.slice(0, 8);
