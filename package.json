@@ -6,6 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "start": "npx tsx --env-file=../process/.env ./app.ts",
+    "startjs": "node --env-file=../process/.env ./app.js",
     "dev": "nodemon",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit"

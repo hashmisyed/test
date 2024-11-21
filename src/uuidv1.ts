@@ -14,25 +14,26 @@ function getIPv4Address() {
     return null; // If no IPv4 address found
 }
 
-export class UUID {
-  static startTime = BigInt(new Date().getTime() * 1000000);
-  static lastTS = BigInt('0');
-	static hrStart = process.hrtime.bigint();
-  static serverIP = getIPv4Address().toString(16).padStart(4, '0');
-  static port = (Number(process.env.PORT) || 3000).toString(16).padStart(2, '0');
-  static genTXID(): string {
-		const now = UUID.startTime + process.hrtime.bigint() - UUID.hrStart;
-    if (now > UUID.lastTS) {
-      UUID.lastTS = now;
+export class TXID {
+  static readonly t0 = BigInt(Date.now() * 1000000);
+  static readonly hrStart = process.hrtime.bigint();
+  static readonly serverIP = getIPv4Address().toString(16).padStart(4, '0');
+  static readonly port = (Number(process.env.PORT) || 3000).toString(16).padStart(2, '0'); //TODO: change port to what expressjs is listening.
+  static ts = BigInt('0');
+  constructor() {};
+	static genTXID(): string {
+		const now = TXID.t0 + process.hrtime.bigint() - TXID.hrStart;
+    if (now > TXID.ts) {
+      TXID.ts = now;
     } else {
-      UUID.lastTS++;
+      TXID.ts++;
     }
 
-    const timeLow = (UUID.lastTS & BigInt('0xFFFFFFFF')).toString(16).padStart(8, '0');
-    const timeMid = ((UUID.lastTS >> BigInt('32')) & BigInt('0xFFFF')).toString(16).padStart(4, '0');
-    const timeHigh = (((UUID.lastTS >> BigInt('48')) & BigInt('0x0FFF')) | BigInt('0x1000')).toString(16).padStart(4, '0');
+    const timeLow = (TXID.ts & BigInt('0xFFFFFFFF')).toString(16).padStart(8, '0');
+    const timeMid = ((TXID.ts >> BigInt('32')) & BigInt('0xFFFF')).toString(16).padStart(4, '0');
+    const timeHigh = (((TXID.ts >> BigInt('48')) & BigInt('0x0FFF')) | BigInt('0x1000')).toString(16).padStart(4, '0');
 
-    const txid = `${timeLow}-${timeMid}-${timeHigh}-${UUID.serverIP}-${UUID.port}`;
+    const txid = `${timeLow}-${timeMid}-${timeHigh}-${TXID.serverIP}-${TXID.port}`;
 
     return txid;
 	}

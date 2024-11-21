@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import {UUID} from './src/uuidv1.ts';
+// import express from 'express';
 // import { DBInstance, executePathProc } from './src/services/db.ts';
 // import procs from './src/procs.ts';
 const app = express()
@@ -7,40 +7,8 @@ const port = 3000
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// const callProc = async function(db: string, req: Request, res: Response) {
-//     const procName = db + '.' + req.method + req.route.path.replaceAll('/', '_').replaceAll(':', '$');
-//     const resp = await executePathProc(procName, req);
-//     res.status(200).json(resp);
-// }
-
-// for (const proc of procs) {
-//     const [db, method, ...p] = proc.split('_');
-//     const path = p.join('/').replaceAll('$', ':');
-//     console.log(db, method, path);
-//     if (method === 'GET') {
-//         app.get(path, (req: Request, res: Response) => {
-//             callProc(db, req, res);
-//         });
-//     } else if (method === 'POST' || method === 'PST') {
-//         app.post(path, (req, res) => {
-//             callProc(db, req, res);
-//         });
-//     } else if (method === 'DELETE' || method === 'DEL') {
-//         app.delete(path, (req, res) => {
-//             callProc(db, req, res);
-//         });
-//     } else if (method === 'PUT') {
-//         app.put(path, (req, res) => {
-//             callProc(db, req, res);
-//         });
-//     } else if (method === 'PATCH' || method === 'PAT') {
-//         app.patch(path, (req, res) => {
-//             callProc(db, req, res);
-//         });
-//     } else throw new Error(`unknown method: ${method}`);
-// }
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+// app.use((err, req, res, next) => {
     res.status(500).send(err.message);
     next();
 })
@@ -51,6 +19,29 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 });
 
-const uuid = UUID.genV1();
-console.log('uuid', uuid);
-console.log('v1', UUID.timeV1(uuid));
+// // Get all the properties (methods) on the console object
+// const consoleMethods = Object.getOwnPropertyNames(console);
+
+// // Filter to get only methods (properties that are functions)
+// const consoleFunctions = consoleMethods.filter(method => typeof console[method] === 'function');
+
+// console.log(consoleFunctions);
+import net from 'net';
+
+// Create a server to listen for incoming connections on a named pipe
+const server = net.createServer((socket) => {
+  console.log('Client connected');
+  
+  socket.on('data', (data) => {
+    console.log(`Received: ${data.toString()}`);
+  });
+  
+  socket.on('end', () => {
+    console.log('Client disconnected');
+  });
+});
+
+// Windows named pipe uses '\\.\pipe\my-pipe' format
+server.listen('\\\\.\\pipe\\node-app-pipe', () => {
+  console.log('Server listening on \\\\.\\pipe\\node-app-pipe');
+});
